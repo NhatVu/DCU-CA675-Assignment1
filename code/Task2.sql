@@ -31,25 +31,23 @@ LOAD DATA LOCAL INPATH '/home/minhnhat/Downloads/Master_In_Ireland/Semester_1/CA
 INTO TABLE posts;
 
 
---- 2.2.1. The top 10 posts by score
-select id, cast(score as int), title 
+-- Task 2.2.1. The top 10 posts by score
+select id, cast(score as int), viewCount, title 
 from posts 
 order by cast(score as int) desc 
 limit 10;
 
---- 2.2.2. The top 10 users by post score 
+--- 2.2.2. The top 10 users by total post score 
 select OwnerUserId, sum(cast(score as int)) as s 
 from posts 
 where OwnerUserId != "" 
-group by OwnerUserId 
-order by s desc 
+group by OwnerUserId order by s desc 
 limit 10;
 
---- 2.2.3. The number of distinct users, who used the word “cloud” in one of their Posts 
+-- 2.2.3. The number of distinct users, who used the word “cloud” in one of their Posts 
 select count(distinct(OwnerUserId))
 from posts 
 lateral view explode(split(concat(title," ", body), ' |,')) lateralTable as word 
 where word = "cloud"
 group by word;
-
 

@@ -1,6 +1,6 @@
 create or replace view flatten_word
 as
-select id as OwnerUserId, word 
+select cast(OwnerUserId as int) as OwnerUserId, trim(word) as word 
 from posts 
 lateral view explode(split(concat(title, " ", body), ' |,')) lateralTable as word 
 where word != "";
@@ -55,3 +55,44 @@ join idf
 on tf.word = idf.word;
 
 
+-------
+select * from (
+select OwnerUserId, word, tfidf, rank() over(partition by OwnerUserId order by tfidf desc) as rn 
+from tfidf as T
+where T.OwnerUserId in (
+ select cast(OwnerUserId as int) from (
+ select OwnerUserId, sum(cast(score as int)) as s 
+from posts 
+where OwnerUserId != "" 
+group by OwnerUserId 
+order by s desc 
+limit 10
+) as B 
+)
+) as A
+where A.rn < 5;
+
+-----
+select * from (
+select OwnerUserId, word, tfidf, rank() over(partition by OwnerUserId order by tfidf desc) as rn 
+from tfidf as T
+where T.OwnerUserId in (
+87234,
+4883,
+9951,
+6068
+)
+) as A
+where A.rn < 5;
+
+---
+87234
+4883
+9951
+6068
+89904.0
+51816.0
+49153.0
+179736.0
+95592.0
+63051.0
