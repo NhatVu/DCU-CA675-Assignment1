@@ -49,7 +49,6 @@ limit 10;
 select count(distinct(OwnerUserId))
 from posts 
 lateral view explode(split(concat(title," ", body), ' |,')) lateralTable as word 
-where word = "cloud"
-group by word;
+where word = "cloud";
 
 

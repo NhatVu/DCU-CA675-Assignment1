@@ -44,8 +44,8 @@ create external table if not exists tfidf (
  OwnerUserId int, 
  word String,
  tfidf double
-)
-location '/user/hive/warehouse/tfidf';
+);
+--location '/user/hive/warehouse/tfidf';
 
 --- insert data to tfidf table
 INSERT OVERWRITE table tfidf
@@ -55,7 +55,7 @@ join idf
 on tf.word = idf.word;
 
 
--------
+------- select top 10 words for each top 10 userId (sorted by score)
 select * from (
 select OwnerUserId, word, tfidf, rank() over(partition by OwnerUserId order by tfidf desc) as rn 
 from tfidf as T
@@ -70,29 +70,18 @@ limit 10
 ) as B 
 )
 ) as A
-where A.rn < 5;
+where A.rn <= 10;
 
------
-select * from (
-select OwnerUserId, word, tfidf, rank() over(partition by OwnerUserId order by tfidf desc) as rn 
-from tfidf as T
-where T.OwnerUserId in (
-87234,
-4883,
-9951,
-6068
-)
-) as A
-where A.rn < 5;
 
----
-87234
-4883
-9951
-6068
-89904.0
-51816.0
-49153.0
-179736.0
-95592.0
-63051.0
+
+--- top 10 OwnerUserId
+-- 87234
+-- 4883
+-- 9951
+-- 6068
+-- 89904.0
+-- 51816.0
+-- 49153.0
+-- 179736.0
+-- 95592.0
+-- 63051.0
